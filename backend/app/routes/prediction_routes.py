@@ -4,11 +4,11 @@ from flask import Blueprint, request, current_app
 from flask_jwt_extended import jwt_required, get_jwt_identity
 from app.extensions import db
 from app.models.prediction import Prediction, PredictionScore
-from app.services.predictor import generate_mock_prediction
+from app.services.predictor import generate_real_prediction
 from app.utils.response import success_response, error_response
 from app.utils.validators import validate_image_file
 
-prediction_bp = Blueprint("prediction", __name__, url_prefix="/api/v1")
+prediction_bp = Blueprint("prediction", __name__, url_prefix="")
 
 
 @prediction_bp.route("/predict", methods=["POST"])
@@ -32,8 +32,13 @@ def predict():
     save_path = os.path.join(upload_folder, filename)
     file.save(save_path)
 
-    result = generate_mock_prediction()
-
+    try:
+        result = generate_real_prediction(save_path)
+    except FileNotFoundError:
+        return error_response(
+            "Prediction model not available. Please contact administrator.",
+            503,
+        )
     prediction = Prediction(
         user_id=user_id,
         image_path=save_path,

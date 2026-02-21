@@ -1,0 +1,15 @@
+Flask
+Flask-SQLAlchemy
+Flask-Migrate
+Flask-JWT-Extended
+Flask-CORS
+Flask-Bcrypt
+psycopg2-binary
+python-dotenv
+reportlab
+Pillow
+pytest
+pytest-flask
+Werkzeug
+SQLAlchemy
+alembic

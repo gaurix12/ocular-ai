@@ -20,12 +20,13 @@ class User(db.Model):
     predictions = db.relationship("Prediction", backref="user", lazy=True)
 
     def to_dict(self):
+        """Convert user to dictionary (exclude password)."""
         return {
             "id": self.id,
             "full_name": self.full_name,
             "email": self.email,
-            "role": self.role,
-            "created_at": self.created_at.isoformat(),
+            "role": str(self.role) if self.role else None,
+            "created_at": self.created_at.isoformat() if hasattr(self, 'created_at') else None,
         }
 
     def __repr__(self):

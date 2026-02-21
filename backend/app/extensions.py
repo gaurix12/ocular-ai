@@ -7,5 +7,5 @@ from flask_bcrypt import Bcrypt
 db = SQLAlchemy()
 migrate = Migrate()
 jwt = JWTManager()
-cors = CORS()
 bcrypt = Bcrypt()
+cors = CORS()  # Initialize empty, configure in app factory

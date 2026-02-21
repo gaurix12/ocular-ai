@@ -50,7 +50,7 @@ def test_predict_success(client):
     assert "top_disease" in result
     assert "confidence" in result
     assert result["risk_level"] in ("Low", "Medium", "High")
-    assert len(result["all_scores"]) == 6
+    assert len(result["all_scores"]) == 3
 
 
 def test_predict_no_auth(client):

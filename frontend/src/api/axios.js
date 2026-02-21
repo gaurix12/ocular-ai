@@ -1,6 +1,9 @@
 import axios from 'axios';
 
-const API_BASE_URL = import.meta.env.VITE_API_BASE_URL || 'http://localhost:5000';
+// In dev: use relative URL so Vite proxy forwards /api to backend (avoids CORS)
+// In prod: use full backend URL from env
+const API_BASE_URL = import.meta.env.VITE_API_BASE_URL
+  || (import.meta.env.DEV ? '' : 'http://localhost:5001');
 
 const axiosInstance = axios.create({
     baseURL: API_BASE_URL,
@@ -21,14 +24,17 @@ axiosInstance.interceptors.request.use(
     (error) => Promise.reject(error)
 );
 
-// Response interceptor — redirect to login on 401
+// Response interceptor — redirect to login on 401 (except when already on login/register)
 axiosInstance.interceptors.response.use(
     (response) => response,
     (error) => {
         if (error.response?.status === 401) {
-            localStorage.removeItem('iris_token');
-            localStorage.removeItem('iris_user');
-            window.location.href = '/login';
+            const isAuthRequest = error.config?.url?.includes('/auth/login') || error.config?.url?.includes('/auth/register');
+            if (!isAuthRequest) {
+                localStorage.removeItem('iris_token');
+                localStorage.removeItem('iris_user');
+                window.location.href = '/login';
+            }
         }
         return Promise.reject(error);
     }

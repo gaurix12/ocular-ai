@@ -16,8 +16,16 @@ export function AuthProvider({ children }) {
     const [token, setToken] = useState(() => localStorage.getItem('iris_token') || null);
 
     const login = useCallback(async (email, password) => {
-        const response = await axiosInstance.post('/api/v1/auth/login', { email, password });
-        const { access_token, user: userData } = response.data.data;
+        const payload = {
+            email: typeof email === 'string' ? email.trim().toLowerCase() : '',
+            password: typeof password === 'string' ? password : '',
+        };
+        const response = await axiosInstance.post('/api/v1/auth/login', payload);
+        const data = response?.data?.data;
+        if (!data || !data.access_token) {
+            throw new Error(response?.data?.message || 'Invalid response from server.');
+        }
+        const { access_token, user: userData } = data;
         localStorage.setItem('iris_token', access_token);
         localStorage.setItem('iris_user', JSON.stringify(userData));
         setToken(access_token);

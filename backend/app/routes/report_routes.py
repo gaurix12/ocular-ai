@@ -13,7 +13,7 @@ from app.models.report import Report
 from app.models.user import User
 from app.utils.response import error_response
 
-report_bp = Blueprint("report", __name__, url_prefix="/api/v1")
+report_bp = Blueprint("report", __name__, url_prefix="")
 
 RISK_COLORS = {
     "High": colors.HexColor("#DC2626"),
@@ -161,14 +161,16 @@ def _build_pdf(prediction: Prediction, user: User, pdf_path: str) -> None:
 def get_report(prediction_id):
     user_id = get_jwt_identity()
 
-    prediction = Prediction.query.get(prediction_id)
+    prediction = db.session.get(Prediction, prediction_id)
     if not prediction:
         return error_response("Prediction not found.", 404)
 
     if prediction.user_id != user_id:
         return error_response("Access denied.", 403)
 
-    user = User.query.get(user_id)
+    user = db.session.get(User, user_id)
+    if not user:
+        return error_response("User not found.", 404)
 
     existing_report = Report.query.filter_by(prediction_id=prediction_id).first()
     if existing_report and os.path.exists(existing_report.pdf_path):

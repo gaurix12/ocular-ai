@@ -31,7 +31,7 @@ class Prediction(db.Model):
             "image_path": self.image_path,
             "top_disease": self.top_disease,
             "confidence": self.confidence,
-            "risk_level": self.risk_level,
+            "risk_level": str(self.risk_level) if self.risk_level else None,
             "recommendation": self.recommendation,
             "all_scores": {s.disease_name: s.probability for s in self.scores},
             "created_at": self.created_at.isoformat(),

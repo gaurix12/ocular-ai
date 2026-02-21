@@ -22,7 +22,10 @@ export default function Login() {
             const from = location.state?.from?.pathname || '/upload';
             navigate(from, { replace: true });
         } catch (err) {
-            setError(err.response?.data?.message || 'Invalid email or password.');
+            const msg = err.response?.data?.message
+                || (err.code === 'ERR_NETWORK' ? 'Cannot reach server. Is the backend running on port 5001?' : err.message)
+                || 'Invalid email or password.';
+            setError(msg);
         } finally {
             setIsLoading(false);
         }
