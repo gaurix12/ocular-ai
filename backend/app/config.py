@@ -20,10 +20,15 @@ class Config:
         o.strip()
         for o in os.environ.get(
             "CORS_ORIGINS",
-            "http://localhost:5173,http://localhost:5174,http://localhost:3000",
+            "http://localhost:5173,http://localhost:5173,http://localhost:3000",
         ).split(",")
         if o.strip()
     ]
+
+    # Ollama LLM for report generation (local)
+    OLLAMA_BASE_URL = os.environ.get("OLLAMA_BASE_URL", "http://localhost:11434")
+    OLLAMA_MODEL = os.environ.get("OLLAMA_MODEL", "meditron:7b")
+    OLLAMA_TIMEOUT = int(os.environ.get("OLLAMA_TIMEOUT", 120))
 
     # Path to the trained MobileNetV2 iris model.
     # Override via MODEL_PATH env var in production.

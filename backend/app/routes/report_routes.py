@@ -11,6 +11,7 @@ from app.extensions import db
 from app.models.prediction import Prediction
 from app.models.report import Report
 from app.models.user import User
+from app.services.ollama_service import generate_report_insights
 from app.utils.response import error_response
 
 report_bp = Blueprint("report", __name__, url_prefix="")
@@ -22,7 +23,12 @@ RISK_COLORS = {
 }
 
 
-def _build_pdf(prediction: Prediction, user: User, pdf_path: str) -> None:
+def _build_pdf(
+    prediction: Prediction,
+    user: User,
+    pdf_path: str,
+    llm_insights: str | None = None,
+) -> None:
     doc = SimpleDocTemplate(
         pdf_path,
         pagesize=A4,
@@ -138,7 +144,13 @@ def _build_pdf(prediction: Prediction, user: User, pdf_path: str) -> None:
     story.append(HRFlowable(width="100%", thickness=1, color=colors.lightgrey))
     story.append(Paragraph("Medical Recommendation", heading_style))
     story.append(Paragraph(prediction.recommendation or "No recommendation available.", normal_style))
-    story.append(Spacer(1, 0.6 * cm))
+    story.append(Spacer(1, 0.4 * cm))
+
+    # LLM-generated clinical insights (from Ollama meditron:7b)
+    if llm_insights:
+        story.append(Paragraph("AI Clinical Insights", heading_style))
+        story.append(Paragraph(llm_insights, normal_style))
+        story.append(Spacer(1, 0.4 * cm))
 
     # Disclaimer
     story.append(HRFlowable(width="100%", thickness=1, color=colors.lightgrey))
@@ -186,7 +198,17 @@ def get_report(prediction_id):
     pdf_filename = f"report_{prediction_id}.pdf"
     pdf_path = os.path.join(reports_folder, pdf_filename)
 
-    _build_pdf(prediction, user, pdf_path)
+    # Generate LLM insights via Ollama (meditron:7b) if available
+    all_scores = {s.disease_name: s.probability for s in prediction.scores}
+    llm_insights = generate_report_insights(
+        top_disease=str(prediction.top_disease),
+        confidence=prediction.confidence,
+        risk_level=str(prediction.risk_level),
+        all_scores=all_scores,
+        base_recommendation=prediction.recommendation or "",
+    )
+
+    _build_pdf(prediction, user, pdf_path, llm_insights=llm_insights)
 
     if existing_report:
         existing_report.pdf_path = pdf_path
