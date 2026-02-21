@@ -1,0 +1,5 @@
+{
+  "name": "OcularAI – Student Mode",
+  "description": "Advanced Iris Analysis & Ophthalmology Education Platform",
+  "requestFramePermissions": ["camera"]
+}
