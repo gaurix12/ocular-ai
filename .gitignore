@@ -1,4 +1,4 @@
-<<<<<<< HEAD
+
 node_modules/
 build/
 dist/
@@ -7,7 +7,6 @@ coverage/
 *.log
 .env*
 !.env.example
-=======
 # Common ignores
 node_modules/
 dist/
@@ -46,4 +45,3 @@ yarn-error.log*
 # OS
 .DS_Store
 Thumbs.db
->>>>>>> 2236385ea8c4866abc1516cc765d3e3d86cabedb
